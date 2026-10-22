@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lab Maya Interaktif: Kegiatan Ekonomi Kelas 5 SD</title>
+    <style>
+        /* RESET & BASE STYLES */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a2634;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 16:9 RATIO CONTAINER */
+        #app-container {
+            width: 100vw;
+            height: 56.25vw; /* 16:9 Aspect Ratio */
+            max-height: 100vh;
+            max-width: 177.78vh; /* 16:9 Aspect Ratio */
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border: 4px solid #0284c7;
+        }
+
+        /* SOUND TOGGLE BUTTON */
+        .audio-toggle {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            z-index: 100;
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .audio-toggle:active {
+            transform: scale(0.95);
+        }
+
+        /* SPLASH SCREEN */
+        #splash-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #splash-screen h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: #fef08a;
+        }
+
+        #splash-screen p {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            opacity: 0.95;
+        }
+
+        .badge-fase {
+            background-color: #f59e0b;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .start-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 36px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #047857, 0 10px 15px rgba(0,0,0,0.3);
+            transition: all 0.1s;
+        }
+
+        .start-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #047857;
+        }
+
+        .progress-container {
+            width: 260px;
+            height: 14px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #f59e0b;
+            transition: width 0.3s;
+        }
+
+        /* HEADER & NAVIGATION */
+        header {
+            background-color: #78350f; /* Warm Wood / Brown Accent */
+            background-image: linear-gradient(to right, #78350f, #92400e);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            border-bottom: 3px solid #b45309;
+            height: 11%;
+        }
+
+        .header-title {
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: #fef08a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav {
+            display: flex;
+            gap: 6px;
+            height: 100%;
+            align-items: flex-end;
+        }
+
+        .tab-btn {
+            background: #b45309;
+            color: #fef3c7;
+            border: none;
+            padding: 6px 14px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            height: 85%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-btn.active {
+            background: #e0f2fe;
+            color: #0369a1;
+            height: 100%;
+            border-top: 3px solid #0284c7;
+        }
+
+        /* MAIN CONTENT AREA */
+        main {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-content {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* CARD STYLES */
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            border: 1px solid #cbd5e1;
+        }
+
+        /* TEORI TAB */
+        .teori-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            height: 100%;
+        }
+
+        .teori-card {
+            background: white;
+            border-radius: 10px;
+            border-top: 5px solid #0284c7;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .teori-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .teori-card h3 {
+            color: #0369a1;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .teori-card .role {
+            font-size: 0.75rem;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .teori-card p {
+            font-size: 0.8rem;
+            color: #475569;
+            line-height: 1.3;
+        }
+
+        .teori-icon {
+            font-size: 2.2rem;
+            text-align: center;
+            margin: 6px 0;
+        }
+
+        .example-box {
+            background: #f8fafc;
+            border-left: 3px solid #f59e0b;
+            padding: 6px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+        }
+
+        /* PROSEDUR TAB */
+        .prosedur-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            height: 100%;
+        }
+
+        .step-card {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            border: 1px solid #e2e8f0;
+        }
+
+        .step-num {
+            background: #0284c7;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .step-text h4 {
+            font-size: 0.9rem;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+
+        .step-text p {
+            font-size: 0.78rem;
+            color: #64748b;
+            line-height: 1.25;
+        }
+
+        /* SIMULASI TAB */
+        .sim-layout {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr;
+            gap: 10px;
+            height: 100%;
+        }
+
+        .sim-stages {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            height: 100%;
+        }
+
+        .stage-box {
+            background: white;
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 2px solid #cbd5e1;
+            position: relative;
+        }
+
+        .stage-box.produksi { border-color: #10b981; }
+        .stage-box.distribusi { border-color: #f59e0b; }
+        .stage-box.konsumsi { border-color: #ef4444; }
+
+        .stage-header {
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 4px;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .stage-box.produksi .stage-header { background: #10b981; }
+        .stage-box.distribusi .stage-header { background: #f59e0b; }
+        .stage-box.konsumsi .stage-header { background: #ef4444; }
+
+        .stage-visual {
+            height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            position: relative;
+        }
+
+        .sim-btn {
+            width: 100%;
+            padding: 6px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            transition: all 0.1s;
+            margin-top: 3px;
+        }
+
+        .sim-btn:active { transform: scale(0.97); }
+        .btn-prod { background: #10b981; }
+        .btn-dist { background: #f59e0b; }
+        .btn-kons { background: #ef4444; }
+
+        .sim-dashboard {
+            background: #0f172a;
+            color: white;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .dash-title {
+            font-size: 0.85rem;
+            color: #38bdf8;
+            font-weight: bold;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 4px;
+            text-align: center;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            margin: 4px 0;
+        }
+
+        .stat-val {
+            font-weight: bold;
+            color: #fef08a;
+            font-size: 0.9rem;
+        }
+
+        .reset-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 2px 0 #991b1b;
+        }
+
+        .reset-btn:active { transform: translateY(2px); box-shadow: none; }
+
+        /* LKPD TAB */
+        .lkpd-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            height: 100%;
+        }
+
+        .quiz-section, .drag-section {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #0369a1;
+            margin-bottom: 6px;
+            border-bottom: 2px solid #e0f2fe;
+            padding-bottom: 4px;
+        }
+
+        .quiz-q {
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .quiz-opts {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            margin-bottom: 8px;
+        }
+
+        .quiz-opt {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .quiz-opt.selected {
+            background: #bae6fd;
+            border-color: #0284c7;
+            font-weight: bold;
+        }
+
+        /* Drag and Drop Styling */
+        .drag-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 8px;
+            min-height: 38px;
+            background: #f8fafc;
+            padding: 4px;
+            border-radius: 6px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        .drag-item {
+            background: #38bdf8;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: grab;
+        }
+
+        .drop-zones {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            flex: 1;
+        }
+
+        .drop-zone {
+            background: #f1f5f9;
+            border: 1.5px dashed #94a3b8;
+            border-radius: 6px;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .drop-zone h5 {
+            font-size: 0.7rem;
+            color: #475569;
+        }
+
+        .submit-lkpd {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+
+        /* PENGEMBANG TAB */
+        .dev-card {
+            background: white;
+            border-radius: 10px;
+            padding: 14px;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .dev-profile {
+            text-align: center;
+            border-right: 2px solid #f1f5f9;
+            padding-right: 15px;
+        }
+
+        .dev-avatar {
+            width: 75px;
+            height: 75px;
+            background: #0284c7;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 8px auto;
+        }
+
+        .dev-info h3 {
+            color: #0369a1;
+            font-size: 1.1rem;
+        }
+
+        .dev-info p {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .cp-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .cp-box h4 {
+            color: #b45309;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .cp-box p {
+            font-size: 0.75rem;
+            color: #334155;
+            line-height: 1.3;
+        }
+
+        /* TOOLTIP POPUP */
+        .popup {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 500;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .popup.show {
+            opacity: 1;
+        }
+
+        /* ANIMATION EFFECTS */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .anim-pulse {
+            animation: pulse 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MAIN APP CONTAINER (16:9 RATIO) -->
+    <div id="app-container">
+        
+        <!-- AUDIO TOGGLE -->
+        <button class="audio-toggle" onclick="toggleAudio()">
+            <span id="audio-icon">🔊</span> <span id="audio-text">Suara ON</span>
+        </button>
+
+        <!-- SPLASH SCREEN -->
+        <div id="splash-screen">
+            <span class="badge-fase">FASE C - KELAS 5 SD</span>
+            <h1>LAB MAYA INTERAKTIF<br>KEGIATAN EKONOMI</h1>
+            <p>Simulasi Interaktif Produksi, Distribusi, & Konsumsi</p>
+            <button class="start-btn" onclick="startApp()">MULAI LAB</button>
+            <div class="progress-container" id="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- HEADER NAVIGATION -->
+        <header>
+            <div class="header-title">
+                <span>🏭</span> LAB MAYA KEGIATAN EKONOMI
+            </div>
+            <nav>
+                <button class="tab-btn active" onclick="switchTab('teori')">Teori</button>
+                <button class="tab-btn" onclick="switchTab('prosedur')">Prosedur</button>
+                <button class="tab-btn" onclick="switchTab('simulasi')">Simulasi</button>
+                <button class="tab-btn" onclick="switchTab('lkpd')">LKPD</button>
+                <button class="tab-btn" onclick="switchTab('pengembang')">Pengembang</button>
+            </nav>
+        </header>
+
+        <!-- MAIN DISPLAY CONTENT -->
+        <main>
+
+            <!-- TAB 1: TEORI -->
+            <div id="tab-teori" class="tab-content active">
+                <div class="teori-grid">
+                    <div class="teori-card" onclick="showPopup('Produksi: Kegiatan menghasilkan barang/jasa untuk memenuhi kebutuhan.')">
+                        <div>
+                            <h3>1. PRODUKSI <span class="role">PRODUSEN</span></h3>
+                            <div class="teori-icon">🌾➡️📦</div>
+                            <p>Kegiatan menghasilkan atau menambah nilai guna suatu barang/jasa.</p>
+                        </div>
+                        <div class="example-box">
+                            <strong>Contoh:</strong> Petani mengolah singkong menjadi keripik renyah.
+                        </div>
+                    </div>
+
+                    <div class="teori-card" style="border-top-color:#f59e0b;" onclick="showPopup('Distribusi: Kegiatan menyalurkan barang dari produsen ke konsumen.')">
+                        <div>
+                            <h3>2. DISTRIBUSI <span class="role" style="background:#fef3c7;color:#b45309;">DISTRIBUTOR</span></h3>
+                            <div class="teori-icon">🚚➡️🏪</div>
+                            <p>Kegiatan menyalurkan barang atau jasa dari produsen kepada konsumen.</p>
+                        </div>
+                        <div class="example-box">
+                            <strong>Contoh:</strong> Sopir truk mengirim keripik dari pabrik ke toko/warung.
+                        </div>
+                    </div>
+
+                    <div class="teori-card" style="border-top-color:#ef4444;" onclick="showPopup('Konsumsi: Kegiatan menggunakan/menghabiskan nilai barang atau jasa.')">
+                        <div>
+                            <h3>3. KONSUMSI <span class="role" style="background:#fee2e2;color:#dc2626;">KONSUMEN</span></h3>
+                            <div class="teori-icon">🛒➡️😋</div>
+                            <p>Kegiatan menggunakan atau menghabiskan nilai guna barang dan jasa.</p>
+                        </div>
+                        <div class="example-box">
+                            <strong>Contoh:</strong> Siswa membeli dan memakan keripik di kantin.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: PROSEDUR -->
+            <div id="tab-prosedur" class="tab-content">
+                <div class="prosedur-list">
+                    <div class="step-card">
+                        <div class="step-num">1</div>
+                        <div class="step-text">
+                            <h4>Buka Tab Simulasi</h4>
+                            <p>Pilih tab "Simulasi" pada menu bagian atas untuk memulai eksperimen rantai ekonomi.</p>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-num">2</div>
+                        <div class="step-text">
+                            <h4>Lakukan Produksi</h4>
+                            <p>Klik tombol "Panen Singkong" lalu "Olah Keripik" untuk menambah stok keripik di pabrik.</p>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-num">3</div>
+                        <div class="step-text">
+                            <h4>Jalankan Distribusi</h4>
+                            <p>Pilih alat transportasi (Truk/Motor) dan klik "Kirim Keripik" untuk menyalurkan ke toko.</p>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-num">4</div>
+                        <div class="step-text">
+                            <h4>Simulasikan Konsumsi</h4>
+                            <p>Klik "Beli Keripik" untuk bertindak sebagai konsumen. Amati neraca ekonomi pada dashboard!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: SIMULASI -->
+            <div id="tab-simulasi" class="tab-content">
+                <div class="sim-layout">
+                    <!-- 3 STAGES -->
+                    <div class="sim-stages">
+                        <!-- PRODUKSI -->
+                        <div class="stage-box produksi">
+                            <div class="stage-header">PRODUKSI</div>
+                            <div class="stage-visual" id="vis-prod">
+                                <span id="icon-prod">🌱</span>
+                                <span style="font-size:0.75rem; color:#059669;" id="text-prod">Kebun Singkong</span>
+                            </div>
+                            <div>
+                                <button class="sim-btn btn-prod" onclick="doProduksi(1)">1. Panen Singkong</button>
+                                <button class="sim-btn btn-prod" onclick="doProduksi(2)" style="background:#059669;">2. Olah Keripik 📦</button>
+                            </div>
+                        </div>
+
+                        <!-- DISTRIBUSI -->
+                        <div class="stage-box distribusi">
+                            <div class="stage-header">DISTRIBUSI</div>
+                            <div class="stage-visual" id="vis-dist">
+                                <span id="icon-dist">🚛</span>
+                                <span style="font-size:0.75rem; color:#d97706;" id="text-dist">Truk Pengangkut</span>
+                            </div>
+                            <div>
+                                <select id="trans-mode" style="width:100%; font-size:0.7rem; padding:3px; margin-bottom:3px;">
+                                    <option value="Truk">🚚 Truk (Kapasitas Large)</option>
+                                    <option value="Motor">🛵 Motor (Cepat)</option>
+                                </select>
+                                <button class="sim-btn btn-dist" onclick="doDistribusi()">Kirim Ke Toko 🏪</button>
+                            </div>
+                        </div>
+
+                        <!-- KONSUMSI -->
+                        <div class="stage-box konsumsi">
+                            <div class="stage-header">KONSUMSI</div>
+                            <div class="stage-visual" id="vis-kons">
+                                <span id="icon-kons">😋</span>
+                                <span style="font-size:0.75rem; color:#dc2626;" id="text-kons">Konsumen Puas</span>
+                            </div>
+                            <div>
+                                <button class="sim-btn btn-kons" onclick="doKonsumsi()">Beli & Makan 🛒</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DASHBOARD -->
+                    <div class="sim-dashboard">
+                        <div class="dash-title">📊 NERACA EKONOMI</div>
+                        
+                        <div class="stat-item">
+                            <span>Stok Pabrik (Produksi):</span>
+                            <span class="stat-val" id="val-prod">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Stok Toko (Distribusi):</span>
+                            <span class="stat-val" id="val-dist">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Terkonsumsi:</span>
+                            <span class="stat-val" id="val-kons">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>Kepuasan Pasar:</span>
+                            <span class="stat-val" id="val-happy">100%</span>
+                        </div>
+
+                        <button class="reset-btn" onclick="resetSimulasi()">🔄 Reset Simulasi</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: LKPD -->
+            <div id="tab-lkpd" class="tab-content">
+                <div class="lkpd-container">
+                    <!-- QUIZ -->
+                    <div class="quiz-section">
+                        <div class="section-title">📝 KUIS SINGKAT</div>
+                        
+                        <div class="quiz-q">1. Orang yang melakukan kegiatan produksi disebut...</div>
+                        <div class="quiz-opts">
+                            <button class="quiz-opt" onclick="selectQuiz(1, 'A', this)">A. Produsen</button>
+                            <button class="quiz-opt" onclick="selectQuiz(1, 'B', this)">B. Distributor</button>
+                            <button class="quiz-opt" onclick="selectQuiz(1, 'C', this)">C. Konsumen</button>
+                        </div>
+
+                        <div class="quiz-q">2. Kurir mengantar paket termasuk kegiatan...</div>
+                        <div class="quiz-opts">
+                            <button class="quiz-opt" onclick="selectQuiz(2, 'A', this)">A. Produksi</button>
+                            <button class="quiz-opt" onclick="selectQuiz(2, 'B', this)">B. Distribusi</button>
+                            <button class="quiz-opt" onclick="selectQuiz(2, 'C', this)">C. Konsumen</button>
+                        </div>
+                    </div>
+
+                    <!-- DRAG & DROP -->
+                    <div class="drag-section">
+                        <div class="section-title">🧩 KELOMPOKKAN KEGIATAN</div>
+                        <div style="font-size:0.7rem; color:#64748b; margin-bottom:4px;">Klik pilihan di bawah untuk memasukkan ke kelompok yang tepat:</div>
+                        
+                        <div class="drag-items" id="item-pool">
+                            <span class="drag-item" onclick="assignCategory(this, 'prod')">Petani Padi</span>
+                            <span class="drag-item" onclick="assignCategory(this, 'dist')">Sopir Truk</span>
+                            <span class="drag-item" onclick="assignCategory(this, 'kons')">Makan Bakso</span>
+                            <span class="drag-item" onclick="assignCategory(this, 'prod')">Pabrik Baju</span>
+                        </div>
+
+                        <div class="drop-zones">
+                            <div class="drop-zone" id="zone-prod">
+                                <h5>PRODUKSI</h5>
+                            </div>
+                            <div class="drop-zone" id="zone-dist">
+                                <h5>DISTRIBUSI</h5>
+                            </div>
+                            <div class="drop-zone" id="zone-kons">
+                                <h5>KONSUMSI</h5>
+                            </div>
+                        </div>
+
+                        <button class="submit-lkpd" onclick="checkLKPD()">Periksa Jawaban 🎯</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: PENGEMBANG -->
+            <div id="tab-pengembang" class="tab-content">
+                <div class="dev-card">
+                    <div class="dev-profile">
+                        <div class="dev-avatar">👨‍🏫</div>
+                        <div class="dev-info">
+                            <h3>Pak Said, S.Pd.</h3>
+                            <p>Guru Kelas 5 SD</p>
+                            <p style="font-size:0.7rem; color:#0284c7; margin-top:4px;">Pengembang Lab Maya Interaktif</p>
+                        </div>
+                    </div>
+                    <div class="cp-box">
+                        <h4>🎯 CAPAIAN PEMBELAJARAN (FASE C - IPAS)</h4>
+                        <p>Peserta didik memahami hubungan antara kegiatan ekonomi (produksi, distribusi, dan konsumsi) dalam memenuhi kebutuhan hidup manusia, serta mampu mengidentifikasi peran masing-masing pelaku ekonomi di lingkungan sekitar secara aktif dan kritis.</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- POPUP TOOLTIP -->
+        <div id="popup" class="popup">Pesan interaktif</div>
+
+    </div>
+
+    <!-- SOUND SYNTHESIZER & APP LOGIC -->
+    <script>
+        /* AUDIO SYNTHESIZER (Web Audio API - No External Files) */
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'success') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.setValueAtTime(500, now + 0.08);
+                osc.frequency.setValueAtTime(800, now + 0.16);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } else if (type === 'reset') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.15);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            }
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('audio-icon').innerText = soundEnabled ? '🔊' : '🔇';
+            document.getElementById('audio-text').innerText = soundEnabled ? 'Suara ON' : 'Suara OFF';
+            if (soundEnabled) playSound('click');
+        }
+
+        /* NAVIGATION LOGIC */
+        function switchTab(tabId) {
+            playSound('click');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.currentTarget.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        /* SPLASH SCREEN & START */
+        function startApp() {
+            playSound('click');
+            const btn = document.querySelector('.start-btn');
+            const pContainer = document.getElementById('progress-container');
+            const pBar = document.getElementById('progress-bar');
+
+            btn.style.display = 'none';
+            pContainer.style.display = 'block';
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 25;
+                pBar.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    playSound('success');
+                    document.getElementById('splash-screen').style.display = 'none';
+                }
+            }, 100);
+        }
+
+        /* POPUP TOOLTIP SYSTEM */
+        function showPopup(text) {
+            playSound('click');
+            const popup = document.getElementById('popup');
+            popup.innerText = text;
+            popup.classList.add('show');
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 2500);
+        }
+
+        /* SIMULATION STATE & LOGIC */
+        let simData = {
+            bahanMentah: 0,
+            stokPabrik: 0,
+            stokToko: 0,
+            terkonsumsi: 0,
+            kepuasan: 100
+        };
+
+        function updateDashboard() {
+            document.getElementById('val-prod').innerText = simData.stokPabrik + ' bungkus';
+            document.getElementById('val-dist').innerText = simData.stokToko + ' bungkus';
+            document.getElementById('val-kons').innerText = simData.terkonsumsi + ' bungkus';
+            document.getElementById('val-happy').innerText = simData.kepuasan + '%';
+        }
+
+        function triggerAnim(elementId) {
+            const el = document.getElementById(elementId);
+            el.classList.remove('anim-pulse');
+            void el.offsetWidth; // trigger reflow
+            el.classList.add('anim-pulse');
+        }
+
+        function doProduksi(step) {
+            playSound('click');
+            if (step === 1) {
+                simData.bahanMentah += 5;
+                document.getElementById('icon-prod').innerText = '🌾';
+                document.getElementById('text-prod').innerText = 'Singkong Dipanen!';
+                showPopup('Panen Berhasil! +5 Singkong Mentah');
+            } else if (step === 2) {
+                if (simData.bahanMentah >= 5) {
+                    simData.bahanMentah -= 5;
+                    simData.stokPabrik += 5;
+                    document.getElementById('icon-prod').innerText = '📦';
+                    document.getElementById('text-prod').innerText = 'Keripik Siap!';
+                    showPopup('Keripik Diolah! +5 Stok Keripik di Pabrik');
+                } else {
+                    showPopup('Lakukan Panen Singkong terlebih dahulu!');
+                }
+            }
+            triggerAnim('vis-prod');
+            updateDashboard();
+        }
+
+        function doDistribusi() {
+            playSound('click');
+            if (simData.stokPabrik > 0) {
+                const mode = document.getElementById('trans-mode').value;
+                let amount = mode === 'Truk' ? 5 : 2;
+                if (amount > simData.stokPabrik) amount = simData.stokPabrik;
+
+                simData.stokPabrik -= amount;
+                simData.stokToko += amount;
+
+                document.getElementById('icon-dist').innerText = mode === 'Truk' ? '🚚' : '🛵';
+                document.getElementById('text-dist').innerText = 'Mengirim ' + amount + ' Keripik';
+                showPopup('Distribusi Berhasil! ' + amount + ' Keripik Dikirim ke Toko');
+            } else {
+                showPopup('Stok Pabrik Kosong! Lakukan Produksi dulu.');
+            }
+            triggerAnim('vis-dist');
+            updateDashboard();
+        }
+
+        function doKonsumsi() {
+            if (simData.stokToko > 0) {
+                playSound('success');
+                simData.stokToko -= 1;
+                simData.terkonsumsi += 1;
+                simData.kepuasan = Math.min(100, simData.kepuasan + 5);
+
+                document.getElementById('icon-kons').innerText = '😋';
+                document.getElementById('text-kons').innerText = 'Nyam! Lezat!';
+                showPopup('Konsumen Membeli & Memakan 1 Keripik');
+            } else {
+                playSound('click');
+                simData.kepuasan = Math.max(0, simData.kepuasan - 10);
+                document.getElementById('icon-kons').innerText = '😡';
+                document.getElementById('text-kons').innerText = 'Stok Toko Habis!';
+                showPopup('Konsumen Kecewa! Stok di Toko Habis.');
+            }
+            triggerAnim('vis-kons');
+            updateDashboard();
+        }
+
+        function resetSimulasi() {
+            playSound('reset');
+            simData = {
+                bahanMentah: 0,
+                stokPabrik: 0,
+                stokToko: 0,
+                terkonsumsi: 0,
+                kepuasan: 100
+            };
+            document.getElementById('icon-prod').innerText = '🌱';
+            document.getElementById('text-prod').innerText = 'Kebun Singkong';
+            document.getElementById('icon-dist').innerText = '🚛';
+            document.getElementById('text-dist').innerText = 'Truk Pengangkut';
+            document.getElementById('icon-kons').innerText = '😋';
+            document.getElementById('text-kons').innerText = 'Konsumen Puas';
+            updateDashboard();
+            showPopup('Simulasi Direset ke Awal');
+        }
+
+        /* LKPD INTERACTIVE LOGIC */
+        let quizAnswers = {};
+
+        function selectQuiz(qNum, option, btn) {
+            playSound('click');
+            quizAnswers[qNum] = option;
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.quiz-opt').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+
+        function assignCategory(el, targetGroup) {
+            playSound('click');
+            const targetZone = document.getElementById('zone-' + targetGroup);
+            targetZone.appendChild(el);
+            el.dataset.category = targetGroup;
+        }
+
+        function checkLKPD() {
+            let score = 0;
+
+            // Quiz check
+            if (quizAnswers[1] === 'A') score += 25;
+            if (quizAnswers[2] === 'B') score += 25;
+
+            // Drag check
+            const items = document.querySelectorAll('.drag-item');
+            items.forEach(item => {
+                const parentId = item.parentElement.id;
+                if (
+                    (item.innerText.includes('Petani') && parentId === 'zone-prod') ||
+                    (item.innerText.includes('Pabrik') && parentId === 'zone-prod') ||
+                    (item.innerText.includes('Sopir') && parentId === 'zone-dist') ||
+                    (item.innerText.includes('Makan') && parentId === 'zone-kons')
+                ) {
+                    score += 12.5;
+                }
+            });
+
+            if (score >= 75) {
+                playSound('success');
+                showPopup('SANGAT BAGUS! Nilai Kamu: ' + score + '/100 🎉');
+            } else {
+                playSound('click');
+                showPopup('Coba Lagi! Nilai Kamu: ' + score + '/100 💪');
+            }
+        }
+    </script>
+</body>
+</html>
